@@ -3,20 +3,15 @@ var goRight=false;
 var goLeft=false;
 var goUp=false;
 var goDown=false;
-//collision and interaction variables
+//collision variables
+var level = 0;
 var leftcollision = false;
 var rightcollision = false;
 var upcollision = false;
 var downcollision = false;
 var keycollision = false;
 var doorcollision = false;
-var interact = false;
-var keyInv = false;
-// audio variables
-function preload(){
-  pickup = loadSound('pickup.mp3')
-}
-var pickup;
+var keyInv;
 //tell computer what keydown and keyup mean
 document.addEventListener('keydown', keyPressed, false);
 document.addEventListener('keyup', keyUnpressed, false);
@@ -59,13 +54,17 @@ var doorImage = new Image();
 doorImage.src = "doorsprite.png";
 var keyImage = new Image();
 keyImage.src = "key.png";
+var brickImage = new Image();
+brickImage.src = "brick.png";
+var vortexImage = new Image();
+vortexImage.src = "vortex.png";
 
 //matrix for each level
 var level0matrix = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 3, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
@@ -101,18 +100,18 @@ var level1matrix = [
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1],
+    [1, 0, 0, 0, 4, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 4, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
@@ -205,7 +204,7 @@ var level4matrix = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 3, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -257,10 +256,9 @@ var testmatrix = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-
 //set background function
 function background(){
-  document.body.style.backgroundImage = "url('backgroundimage.png')";
+  document.body.style.backgroundImage = "url('static.jpg')";
 }
 
 //declare sprite
@@ -351,6 +349,24 @@ var demon = sprite({
   curFrame: 0
 })
 
+var vortex = sprite({
+  context: l2ctx,
+  x: 0,
+  y: 0,
+  moving: true,
+  srcX:0,
+  srcY: 0,
+  lastX:0,
+  lastY:0,
+  sheetwidth: 36,
+  sheetheight: 36,
+  sizewidth: 36,
+  sizeheight: 36,
+  image: vortexImage,
+  frameCount: 2,
+  curFrame: 0
+})
+
 //function for demon movement
 function demonAI(){
 
@@ -366,8 +382,7 @@ function buildlevel(){
       //if current matrix value holds a 1, signfies wall
       if (currentmatrix[i][j] == 1){
         //draw square at current i and j values size 36 by 36
-        l2ctx.fillStyle = "#000000";
-        l2ctx.fillRect(xvalue, yvalue, 36, 36);
+        l2ctx.drawImage(brickImage, xvalue, yvalue, 36, 36);
       }
       //if current matrix value holds 2, signifies door
      if(currentmatrix[i][j] == 2){
@@ -381,8 +396,20 @@ function buildlevel(){
       if(currentmatrix[i][j] == 3){
         key.x = (j * 36) + 9;
         key.y = (i * 36) + 5;
-        //show key
+        //show door
         key.show();
+      }
+      //if holds 4, signifies vortex
+      if(currentmatrix[i][j] == 4){
+        //update
+        vortex.x = j * 36;
+        vortex.y = i * 36;
+        vortex.lastX = j * 36;
+        vortex.lastY = i * 36;
+        vortex.update();
+
+        //show
+        vortex.show();
       }
 
       xvalue+=36;
@@ -479,7 +506,7 @@ function movementUpdate(){
     }
 
 }
-
+ var interact = false;
 //for when the arrow keys are pressed
 function keyPressed(event){
   if (event.keyCode == '68')
@@ -497,14 +524,12 @@ function keyPressed(event){
   else if (event.keyCode == '87')
   {
     goUp= true;
-  }
-  else if (event.keyCode == '88')
-  {
+  } else if (event.keyCode == '88')
     interact = true;
     console.log('interact');
-  }
-
 }
+
+
 //for when the keys are let go
 function keyUnpressed(event){
   if (event.keyCode == '68')
@@ -527,10 +552,6 @@ function keyUnpressed(event){
     goUp= false;
     player.moving = false;
   }
-  else if (event.keyCode == '88')
-  {
-    interact = false;
-  }
 
 }
 
@@ -544,60 +565,79 @@ function collisionsUpdate(){
   keycollision = false;
   doorcollision = false;
     //first get player matrix locations by dividing current by 36
-    var matrixX = (player.x/36 + 1);
-    var matrixY = (player.y/36 + 1);
+    var matrixX = (player.x/36);
+    var matrixY = (player.y/36);
     //round values down
       matrixX = Math.round(matrixX);
       matrixY = Math.round(matrixY);
       console.log("X = ", matrixX, "Y = ", matrixY);
 
     //set collsisions based on matrix values around player
-    if(currentmatrix[matrixX - 2][matrixY - 1] == 1){
+    if(currentmatrix[matrixX - 1][matrixY] == 1){
       //set collision to true
       leftcollision = true;
       console.log("LEFT COL");
     }
-    if(currentmatrix[matrixX][matrixY - 1] == 1){
+    if(currentmatrix[matrixX + 1][matrixY] == 1){
       //set collision to true
       rightcollision = true;
       console.log("RIGHT COL");
     }
-    if(currentmatrix[matrixX - 1][matrixY] == 1){
+    if(currentmatrix[matrixX][matrixY + 1] == 1){
       //set collision to true
       downcollision = true;
       console.log("DOWN COL");
     }
-    if(currentmatrix[matrixX - 1][matrixY - 2] == 1){
+    if(currentmatrix[matrixX][matrixY - 1] == 1){
       //set collision to true
       upcollision = true;
       console.log("UP COL");
     }
-    if(currentmatrix[matrixX - 1][matrixY - 1] == 3 && interact){
+    if(currentmatrix[matrixX][matrixY] == 3 && interact){
       //set collision to true
       keycollision = true;
       console.log("KEY COL");
-      pickup.play();
       keyInv = true;
       if(keyInv == true){
         console.log('you got a key');
       }
+      door.opened = true;
     }
-    if(currentmatrix[matrixX - 1][matrixY - 1] == 2 && keyInv == true && interact == true){
+    if(currentmatrix[matrixX][matrixY] == 2 && door.opened == true && interact == true){
       //set collision to true
       doorcollision = true;
       console.log("DOOR COL");
-      currentmatrix = level1matrix;
+
       keyInv = false;
+      door.opened = false;
     }
 
 }
 
+
 //gameloop
 function gameLoop(){
-    //do level player is currently on
-    //playerlocationfunc();
-    //set current matrix
-    currentmatrix = level0matrix;
+    //set current matrix based on players current level
+    if(level = 0){
+      currentmatrix = level0matrix;
+    }
+    if(level = 1){
+      currentmatrix = level1matrix;
+    }
+    if(level = 2){
+      currentmatrix = level2matrix;
+    }
+    if(level = 3){
+      currentmatrix = level3matrix1;
+    }
+    if(level = 4){
+      currentmatrix = level3matrix2;
+    }
+    if(level = 5){
+      currentmatrix = level4matrix;
+    }
+    console.log('level =' + level);
+
     //set background
     background();
     //Updating the frame
@@ -605,16 +645,11 @@ function gameLoop(){
     //Drawing the player
     player.show();
     //update demon frame
-    demon.update();
+    //demon.update();
     //draw demon
-    demon.show();
+    //demon.show();
+    //build level
     buildlevel();
-    //show keys
-    //level0key.show();
-    //draw the wall
-    //level0wall.build();
-    //show door
-    //level0door.show();
     //update movement
     movementUpdate();
 
