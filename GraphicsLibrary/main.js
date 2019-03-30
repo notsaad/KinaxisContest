@@ -4,21 +4,24 @@ var goLeft=false;
 var goUp=false;
 var goDown=false;
 //collision variables
-var level = 0;
 var leftcollision = false;
 var rightcollision = false;
 var upcollision = false;
 var downcollision = false;
-var keycollision = false;
-var doorcollision = false;
-var keyInv;
 //tell computer what keydown and keyup mean
 document.addEventListener('keydown', keyPressed, false);
 document.addEventListener('keyup', keyUnpressed, false);
 //players wheravouts in game for making strings
 var playerlocationstr = "level0";
+var level0 = true;
+var level1 = false;
+var level2 = false;
+var level3 = false;
+var level4 = false;
+var level5 = false;
 var currentmatrix;
-
+//inventory
+var keyInv;
 //create canvas
 //Width and height for our canvas
 var canvasWidth = 900;
@@ -60,10 +63,9 @@ var vortexImage = new Image();
 vortexImage.src = "vortex.png";
 
 //matrix for each level
+
 var level0matrix = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 3, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -84,7 +86,9 @@ var level0matrix = [
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 //matrix for each level
@@ -100,18 +104,18 @@ var level1matrix = [
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 4, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 4, 0, 1],
+    [1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
@@ -144,7 +148,7 @@ var level2matrix = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 //matrix for each level
-var level3matrix1 = [
+var level3matrix = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
@@ -172,7 +176,7 @@ var level3matrix1 = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 //matrix for each level
-var level3matrix2 = [
+var level4matrix = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
@@ -200,7 +204,7 @@ var level3matrix2 = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 //matrix for each level
-var level4matrix = [
+var level5matrix = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -227,7 +231,6 @@ var level4matrix = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
-
 var testmatrix = [
     [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -255,7 +258,6 @@ var testmatrix = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
-
 //set background function
 function background(){
   document.body.style.backgroundImage = "url('static.jpg')";
@@ -314,8 +316,8 @@ function sprite(options){
 var player = sprite({
 
   context: l3ctx,
-  x: 36,
-  y: 36,
+  x: 48,
+  y: 48,
   moving: false,
   srcX:0,
   srcY: 0,
@@ -367,9 +369,60 @@ var vortex = sprite({
   curFrame: 0
 })
 
-//function for demon movement
-function demonAI(){
+var wasHere;
+var finalPath;
+var finalPathLen=-1;
+var currentX = (demon.x/36)+1;
+var currentY = (demon.y/36)+1;
+var goalX = (player.x/36)+1;
+var goalY = (player.y/36)+1;
+var marked;
 
+function recursiveAlgorithm(x, y){
+  //if at goal
+      if((x == goalX)&&(y == goalY)){
+        //return current location?
+        return x, y;
+      }
+      else{
+          //if *direction is not a wall and is unmarked
+          //*right
+          if((currentmatrix[x+1][y] != 1) && (marked[x+1][y] == false)){
+                //change location
+                x++;
+                //mark location
+                mark[x][y] = true;
+                //find path from location
+                return recursiveAlgorithm(x, y);
+          }
+          //*left
+          if((currentmatrix[x-1][y] != 1) && (marked[x-1][y] == false)){
+              //change location
+              x--;
+              //mark location
+              mark[x][y] = true;
+              //find path from location
+              return recursiveAlgorithm(x, y);
+          }
+          //*down
+          if((currentmatrix[x][y+1] != 1) && (marked[x][y+1] == false)){
+            //change location
+            y++;
+            //mark location
+            mark[x][y] = true;
+            //find path from location
+            return recursiveAlgorithm(x, y);
+          }
+          //*up
+          if((currentmatrix[x][y-1] != 1) && (marked[x][y-1] == false)){
+            //change location
+            y--;
+            //mark location
+            mark[x][y] = true;
+            //find path from location
+            return recursiveAlgorithm(x, y);
+          }
+      }
 }
 
 function buildlevel(){
@@ -428,6 +481,7 @@ function doorobject(options){
   var that = {};
 
   that.opened = options.opened;
+  that.unlocked = options.unlocked;
   that.x = options.x;
   that.y = options.y;
   that.srcX = options.srcX;
@@ -451,6 +505,7 @@ var door = doorobject({
 
   x: 0,
   y: 0,
+  unlocked:false,
   opened: false,
   srcX:0,
   srcY: 0,
@@ -463,52 +518,76 @@ function keyobject(options){
 
   that.x = options.x;
   that.y = options.y;
+  that.pickedup = options.pickedup;
 
   that.show = function(){
-    l2ctx.drawImage(keyImage, that.x, that.y, 32, 32);
+    if(!that.pickedup){
+      l2ctx.drawImage(keyImage, that.x, that.y, 32, 32);
+    }
+    else{
+      l2ctx.clearRect(that.x,that.y,32,32);
+    }
   }
   return that;
 }
 
 var key = keyobject({
+  pickedup:false,
   x: 0,
   y: 0
 })
 
 //general movement FUNCTION
 function movementUpdate(){
-  //update collisions
-  collisionsUpdate();
   //set lastx and lasty before moving
   player.lastX = player.x;
   player.lastY = player.y;
   //moves the maincharacter
     if(goRight && !rightcollision){
     		 ///character.x += 5;
-    		 player.x+=18;
+    		 player.x+=10;
          //tell that player is moving
          player.moving = true;
      }
     else if(goLeft && !leftcollision) {
     	 //character.x -= 5;
-    	 player.x-=18;
+    	 player.x-=10;
        player.moving = true;
      }
    if(goUp && !upcollision) {
    	 //character.y -= 5;
-   	 player.y-=18;
+   	 player.y-=10;
      player.moving = true;
     }
    else if(goDown && !downcollision) {
    	 //character.y += 5;
-   	 player.y+=18;
+   	 player.y+=10;
      player.moving = true;
     }
 
 }
+
  var interact = false;
+var handleturned = false;
+
 //for when the arrow keys are pressed
 function keyPressed(event){
+  if (event.keyCode == '39')
+  {
+    goRight=true;
+  }
+  else if (event.keyCode == '37')
+  {
+    goLeft= true;
+  }
+  if (event.keyCode == '40')
+  {
+    goDown= true;
+  }
+  else if (event.keyCode == '38')
+  {
+    goUp= true;
+  }
   if (event.keyCode == '68')
   {
     goRight=true;
@@ -524,21 +603,46 @@ function keyPressed(event){
   else if (event.keyCode == '87')
   {
     goUp= true;
-  } else if (event.keyCode == '88')
+  }
+
+  else if (event.keyCode == '88'){
     interact = true;
     console.log('interact');
+  }
+  else if (event.keyCode == '67'){
+    handleturned = true;
+    console.log('handleturned');
+  }
 }
-
-
 //for when the keys are let go
 function keyUnpressed(event){
-  if (event.keyCode == '68')
+  if (event.keyCode == '39')
   {
     goRight=false;
     player.moving = false;
   }
-  else if (event.keyCode == '65')
+  else if (event.keyCode == '37')
   {
+    goLeft= false;
+    player.moving = false;
+  }
+  if (event. keyCode == '40')
+  {
+    goDown= false;
+    player.moving = false;
+  }
+  else if (event. keyCode == '38')
+  {
+    goUp= false;
+    player.moving = false;
+  }
+  if (event.keyCode == '68')
+    {
+    goRight=false;
+    player.moving = false;
+    }
+    else if (event.keyCode == '65')
+    {
     goLeft= false;
     player.moving = false;
   }
@@ -552,7 +656,16 @@ function keyUnpressed(event){
     goUp= false;
     player.moving = false;
   }
+  if (event. keyCode == '88')
+  {
+    interact= false;
 
+  }
+  if (event. keyCode == '67')
+  {
+    handleturned = false;
+
+  }
 }
 
 //general collisions FUNCTION
@@ -564,99 +677,102 @@ function collisionsUpdate(){
   downcollision = false;
   keycollision = false;
   doorcollision = false;
-    //first get player matrix locations by dividing current by 36
-    var matrixX = (player.x/36);
-    var matrixY = (player.y/36);
-    //round values down
-      matrixX = Math.round(matrixX);
-      matrixY = Math.round(matrixY);
-      console.log("X = ", matrixX, "Y = ", matrixY);
 
+    //first get player matrix locations by adding 16 to find middle of object and dividing current by 36
+    matrixX = (player.x+32)/36;
+    matrixY = (player.y+16)/36;
+    //round values down
+      matrixX = Math.floor(matrixX);
+      matrixY = Math.floor(matrixY);
+      console.log("X = ", matrixX, "Y = ", matrixY);
     //set collsisions based on matrix values around player
-    if(currentmatrix[matrixX - 1][matrixY] == 1){
+    if(currentmatrix[matrixY][matrixX-1] == 1){
       //set collision to true
       leftcollision = true;
-      console.log("LEFT COL");
+      console.log("LEFT COL, LOOKING AT A ", currentmatrix[matrixX - 1][matrixY], " WHEN CHECKING (",matrixX-1,", ", matrixY,")");
     }
-    if(currentmatrix[matrixX + 1][matrixY] == 1){
+    //first get player matrix locations by adding 16 to find middle of object and dividing current by 36
+    matrixX = (player.x)/36;
+    matrixY = (player.y+16)/36;
+    //round values down
+      matrixX = Math.floor(matrixX);
+      matrixY = Math.floor(matrixY);
+    if(currentmatrix[matrixY][matrixX+1] == 1){
       //set collision to true
       rightcollision = true;
-      console.log("RIGHT COL");
+      console.log("RIGHT COL, LOOKING AT A ", currentmatrix[matrixX + 1][matrixY], " WHEN CHECKING (",matrixX+1,", ", matrixY,")");
     }
-    if(currentmatrix[matrixX][matrixY + 1] == 1){
+    //first get player matrix locations by adding 16 to find middle of object and dividing current by 36
+    matrixX = (player.x+16)/36;
+    matrixY = (player.y)/36;
+    //round values down
+      matrixX = Math.floor(matrixX);
+      matrixY = Math.floor(matrixY);
+    if(currentmatrix[matrixY +1][matrixX] == 1){
       //set collision to true
       downcollision = true;
-      console.log("DOWN COL");
+      console.log("DOWN COL, LOOKING AT A ", currentmatrix[matrixX][matrixY + 1], " WHEN CHECKING (",matrixX,", ", matrixY+1,")");
     }
-    if(currentmatrix[matrixX][matrixY - 1] == 1){
+    //first get player matrix locations by adding 16 to find middle of object and dividing current by 36
+    matrixX = (player.x+16)/36;
+    matrixY = (player.y+32)/36;
+    //round values down
+      matrixX = Math.floor(matrixX);
+      matrixY = Math.floor(matrixY);
+    if(currentmatrix[matrixY -1][matrixX] == 1){
       //set collision to true
       upcollision = true;
-      console.log("UP COL");
+      console.log("UP COL, LOOKING AT A ", currentmatrix[matrixX][matrixY - 1], " WHEN CHECKING (",matrixX,", ", matrixY-1,")");
     }
+    //first get player matrix locations by adding 16 to find middle of object and dividing current by 36
+    matrixX = (player.x+16)/36;
+    matrixY = (player.y+16)/36;
+    //round values down
+      matrixX = Math.floor(matrixX);
+      matrixY = Math.floor(matrixY);
     if(currentmatrix[matrixX][matrixY] == 3 && interact){
       //set collision to true
       keycollision = true;
       console.log("KEY COL");
       keyInv = true;
+      key.pickedup = true;
+
       if(keyInv == true){
         console.log('you got a key');
       }
-      door.opened = true;
+
+      door.unlocked = true;
     }
-    if(currentmatrix[matrixX][matrixY] == 2 && door.opened == true && interact == true){
+    if(currentmatrix[matrixX][matrixY] == 2 && door.unlocked == true && handleturned == true){
       //set collision to true
       doorcollision = true;
       console.log("DOOR COL");
-
+      door.opened = true;
       keyInv = false;
-      door.opened = false;
+      console.log('door opened');
     }
-
 }
-
 
 //gameloop
 function gameLoop(){
-    //set current matrix based on players current level
-    if(level = 0){
-      currentmatrix = level0matrix;
-    }
-    if(level = 1){
-      currentmatrix = level1matrix;
-    }
-    if(level = 2){
-      currentmatrix = level2matrix;
-    }
-    if(level = 3){
-      currentmatrix = level3matrix1;
-    }
-    if(level = 4){
-      currentmatrix = level3matrix2;
-    }
-    if(level = 5){
-      currentmatrix = level4matrix;
-    }
-    console.log('level =' + level);
-
+    //set current matrix
+    currentmatrix = level0matrix;
     //set background
     background();
     //Updating the frame
     player.update();
     //Drawing the player
     player.show();
-    //update demon frame
-    //demon.update();
-    //draw demon
-    //demon.show();
     //build level
     buildlevel();
+    //update collisions
+    collisionsUpdate();
     //update movement
     movementUpdate();
 
 }
 
-
-  //(for movement) if player is not vertically colliding, CAN vertically move, same apps. for horizontally
+//(for movement) if player is not vertically colliding, CAN vertically move, same apps. for horizontally
 
 //set for gameLoop to only occur every 200ms
 setInterval(gameLoop,100);
